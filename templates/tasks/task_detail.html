@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}{{ task.title }}{% endblock %}
+{% block content %}
+<div class="card shadow-sm col-md-8 mx-auto"><div class="card-body">
+  <div class="d-flex justify-content-between">
+    <h4>{{ task.title }}</h4>
+    {% if can_manage %}
+      <div class="d-flex gap-2">
+        <a class="btn btn-outline-primary btn-sm" href="{% url 'task_update' task.pk %}">Edit</a>
+        <a class="btn btn-outline-danger btn-sm" href="{% url 'task_delete' task.pk %}">Delete</a>
+      </div>
+    {% endif %}
+  </div>
+  <p class="text-muted mb-2">Project: <a href="{% url 'project_detail' task.project.pk %}">{{ task.project.name }}</a></p>
+  <p>{{ task.description|linebreaksbr }}</p>
+  <ul class="list-unstyled">
+    <li><strong>Assigned to:</strong> {{ task.assigned_to.username|default:"Unassigned" }}</li>
+    <li><strong>Priority:</strong> {{ task.get_priority_display }}</li>
+    <li><strong>Status:</strong> {{ task.get_status_display }}</li>
+    <li><strong>Deadline:</strong> {{ task.deadline }} {% if task.is_overdue %}<span class="badge bg-danger">Overdue</span>{% endif %}</li>
+  </ul>
+  {% if status_form %}
+    <form method="post" class="d-flex gap-2 align-items-center">
+      {% csrf_token %}
+      {{ status_form.status }}
+      <button class="btn btn-success" type="submit">Update status</button>
+    </form>
+  {% endif %}
+</div></div>
+{% endblock %}

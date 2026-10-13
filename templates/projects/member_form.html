@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Add member{% endblock %}
+{% block content %}
+<div class="card shadow-sm col-md-6 mx-auto"><div class="card-body">
+  <h4>Add member to {{ project.name }}</h4>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% for field in form %}
+      <div class="mb-3">
+        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% for e in field.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+      </div>
+    {% endfor %}
+    <button class="btn btn-primary" type="submit">Add</button>
+    <a class="btn btn-secondary" href="{% url 'project_detail' project.pk %}">Cancel</a>
+  </form>
+</div></div>
+{% endblock %}
