@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}Tasks{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="mb-0">{% if scope == 'mine' %}My tasks{% else %}All visible tasks{% endif %}</h3>
+  <div class="btn-group btn-group-sm">
+    <a class="btn {% if scope == 'mine' %}btn-primary{% else %}btn-outline-primary{% endif %}" href="?scope=mine">Mine</a>
+    <a class="btn {% if scope == 'all' %}btn-primary{% else %}btn-outline-primary{% endif %}" href="?scope=all">All</a>
+  </div>
+</div>
+
+<form method="get" class="card card-body shadow-sm mb-3">
+  <input type="hidden" name="scope" value="{{ scope }}">
+  <div class="row g-2">
+    <div class="col-md-4">{{ form.q }}</div>
+    <div class="col-6 col-md-2">{{ form.status }}</div>
+    <div class="col-6 col-md-2">{{ form.priority }}</div>
+    <div class="col-6 col-md-2">{{ form.project }}</div>
+    <div class="col-6 col-md-2">{{ form.overdue }}</div>
+    <div class="col-md-4">{{ form.sort }}</div>
+    <div class="col-md-8 d-flex gap-2">
+      <button class="btn btn-primary" type="submit">Apply</button>
+      <a class="btn btn-outline-secondary" href="?scope={{ scope }}">Reset</a>
+    </div>
+  </div>
+</form>
+
+<div class="card shadow-sm"><div class="table-responsive">
+  <table class="table table-hover align-middle mb-0">
+    <thead class="table-light">
+      <tr><th>Title</th><th>Project</th><th>Assigned</th><th>Priority</th><th>Status</th><th>Deadline</th></tr>
+    </thead>
+    <tbody>
+      {% for t in page %}
+        <tr>
+          <td><a href="{% url 'task_detail' t.pk %}" class="text-decoration-none">{{ t.title }}</a></td>
+          <td>{{ t.project.name }}</td>
+          <td>{{ t.assigned_to.username|default:"-" }}</td>
+          <td>{{ t.get_priority_display }}</td>
+          <td>{{ t.get_status_display }}</td>
+          <td {% if t.status != 'completed' and t.deadline < today %}class="text-danger fw-bold"{% endif %}>{{ t.deadline }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="6" class="text-center text-muted py-4">No tasks match.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+
+{% if page.has_other_pages %}
+<nav class="mt-3">
+  <ul class="pagination justify-content-center">
+    {% if page.has_previous %}
+      <li class="page-item"><a class="page-link" href="?{{ querystring }}&page={{ page.previous_page_number }}">Previous</a></li>
+    {% endif %}
+    <li class="page-item disabled"><span class="page-link">Page {{ page.number }} of {{ page.paginator.num_pages }}</span></li>
+    {% if page.has_next %}
+      <li class="page-item"><a class="page-link" href="?{{ querystring }}&page={{ page.next_page_number }}">Next</a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}
